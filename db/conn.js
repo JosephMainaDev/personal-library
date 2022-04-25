@@ -12,10 +12,9 @@ const client = new MongoClient(db_uri, {
 exports.dbConnection = async function() {
   try {
   	await client.connect();
-  	return await client.db('library');
+    let db = await client.db('library')
+  	return await db.collection('books'); // client.db('library');
   } catch (err) {
   	return console.error(err);
-  } finally {
-    client.close();
   }
 }

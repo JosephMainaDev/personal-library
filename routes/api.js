@@ -12,59 +12,21 @@ const { ObjectId } = require('mongodb');
 // MongoDB driver connection
 const { dbConnection } = require('../db/conn');
 
-const { book_get } = require('../controllers/controllers.js');
+const {
+  books_get,
+  book_post,
+  books_delete
+} = require('../controllers/controllers.js');
 
 module.exports = function(app) {
 
   app.route('/api/books')
-    .get(book_get)
-    .get(async function(req, res) {
-      // GET all books in library collection
-      // Response will be array of book objects
-      // Format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
-      //const dbConnect = dbConnection();//dbo.getDb();
-      //const db = getDb();
-      //const books = await db.collection('books');
-      //console.log(books);
-      /*
-      dbConnection()
-        .collection('books')
-        .aggregate([
-          {
-            $project: {
-              title: 1,
-              commentcount: { $size: '$comments' }
-            }
-          }
-        ])
-        .toArray(function(err, result) {
-          if (err) throw (err);
-          return res.json(result);
-        });*/
-    })
-/*
-    .post(function(req, res) {
-      // CREATE book record
-      // Response will be the inserted book object including atleast _id and title
-      // Format: {"_id": bookid, "title": book_title, "comments": []}
-      let title = req.body.title;
-      // missing title
-      if (!title) {
-        return res.send('missing required field title'); // return stops execution
-      }
-      const book = {
-        title: title,
-        comments: [],
-      }
-      const dbConnect = dbo.getDb();
-      dbConnect
-        .collection('books')
-        .insertOne(book, function(err, result) {
-          if (err) throw (err);
-          return res.json({ title: title, _id: result.insertedId });
-        });
-    })
+    .get(books_get)
 
+    .post(book_post)
+
+    .delete(books_delete)
+/*
     .delete(function(req, res) {
       // DELETE all books in database
       //if successful response will be 'complete delete successful'
