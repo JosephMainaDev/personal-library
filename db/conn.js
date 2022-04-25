@@ -13,7 +13,7 @@ exports.dbConnection = async function() {
   try {
   	await client.connect();
     let db = await client.db('library')
-  	return await db.collection('books'); // client.db('library');
+  	return await db.collection('books');
   } catch (err) {
   	return console.error(err);
   }

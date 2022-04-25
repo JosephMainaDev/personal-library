@@ -1,11 +1,11 @@
 const { ObjectId } = require('mongodb');
 const { dbConnection } = require('../db/conn');
+let book = await dbConnection();
 
 exports.books_get = async function(req, res) {
   // GET all books in library collection
   // Response will be array of book objects
   // Format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
-  let books = await dbConnection();
   let query = [
       {
         $project: {
@@ -15,7 +15,7 @@ exports.books_get = async function(req, res) {
       }
     ];
   try {
-    let result = await books.aggregate(query).toArray();
+    let result = await book.aggregate(query).toArray();
     res.json(result);
   } catch (err) {
     return console.error(err);
@@ -35,7 +35,6 @@ exports.book_post = async function(req, res) {
     title: title,
     comments: [],
   }
-  let book = await dbConnection();
   try {
     let result = await book.insertOne(bookItem);
     if (result.insertedId) {
@@ -49,9 +48,8 @@ exports.book_post = async function(req, res) {
 exports.books_delete = async function (req, res) {
   // DELETE all books in database
   // if successful response will be 'complete delete successful'
-  let books = await dbConnection();
   try {
-    let result = await books.deleteMany({});
+    let result = await book.deleteMany({});
     if (result.deletedCount) {
       return res.send('complete delete successful');
     } else {
@@ -66,7 +64,6 @@ exports.book_get = async function(req, res) {
   // GET a single book that matches { _id: id }
   // Response will be a book object
   // Format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
-  let book = await dbConnection();
   let bookItem = { _id: new ObjectId(req.params.id) };
   try {
     let result = await book.findOne(bookItem);
@@ -83,7 +80,6 @@ exports.book_get = async function(req, res) {
 exports.book_delete = async function(req, res) {
   // DELETE a book record with _id from the collection
   // Response will be the string 'delete successful'
-  let book = await dbConnection();
   let bookItem = { _id: new ObjectId(req.params.id) };
   try {
     let result = await book.deleteOne(bookItem);
@@ -101,7 +97,6 @@ exports.book_comment = async function (req, res) {
   // POST comments to book with _id
   // Response will be a book object
   // Format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
-  let book = await dbConnection();
   let comment = req.body.comment;
   if (!comment) {
     return res.send('missing required field comment');
