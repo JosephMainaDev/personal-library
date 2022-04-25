@@ -8,18 +8,26 @@
 
 'use strict';
 
-const dbo = require('../db/conn');
 const { ObjectId } = require('mongodb');
+// MongoDB driver connection
+const { dbConnection } = require('../db/conn');
+
+const { book_get } = require('../controllers/controllers.js');
 
 module.exports = function(app) {
 
   app.route('/api/books')
-    .get(function(req, res) {
+    .get(book_get)
+    .get(async function(req, res) {
       // GET all books in library collection
       // Response will be array of book objects
       // Format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
-      const dbConnect = dbo.getDb();
-      dbConnect
+      //const dbConnect = dbConnection();//dbo.getDb();
+      //const db = getDb();
+      //const books = await db.collection('books');
+      //console.log(books);
+      /*
+      dbConnection()
         .collection('books')
         .aggregate([
           {
@@ -32,9 +40,9 @@ module.exports = function(app) {
         .toArray(function(err, result) {
           if (err) throw (err);
           return res.json(result);
-        });
+        });*/
     })
-
+/*
     .post(function(req, res) {
       // CREATE book record
       // Response will be the inserted book object including atleast _id and title
@@ -134,5 +142,5 @@ module.exports = function(app) {
           }
           return res.send('delete successful');
         });
-    });
+    });*/
 };
