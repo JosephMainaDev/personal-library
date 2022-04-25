@@ -158,13 +158,14 @@ suite('Functional Tests', function() {
             done();
           });
       });
+      
     });
 
     suite('DELETE /api/books/[id] => delete book object id', function() {
 
       test('Test DELETE /api/books/[id] with valid id in db', function(done) {
         chai.request(server)
-          .delete('/api/books/6266f0c352be8c05074f3c90')
+          .delete('/api/books/6266f58946592a67caf0f06e')
           .end(function(err, res) {
             assert.equal(res.status, 200);
             assert.equal(res.text, 'delete successful');
@@ -181,6 +182,9 @@ suite('Functional Tests', function() {
             done();
           });
       });
+
     });
+
   });
+
 });
