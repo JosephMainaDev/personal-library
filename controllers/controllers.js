@@ -52,7 +52,6 @@ exports.books_delete = async function (req, res) {
   let books = await dbConnection();
   try {
     let result = await books.deleteMany({});
-    console.log(result);
     if (result.deletedCount) {
       return res.send('complete delete successful');
     } else {
@@ -63,4 +62,65 @@ exports.books_delete = async function (req, res) {
   }
 }
 
+exports.book_get = async function(req, res) {
+  // GET a single book that matches { _id: id }
+  // Response will be a book object
+  // Format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
+  let book = await dbConnection();
+  let bookItem = { _id: new ObjectId(req.params.id) };
+  try {
+    let result = await book.findOne(bookItem);
+    if (result) {
+      return res.json(result);
+    } else {
+      return res.send('no book exists');
+    }
+  } catch(err) {
+    return console.error(err);
+  }
+}
 
+exports.book_delete = async function(req, res) {
+  // DELETE a book record with _id from the collection
+  // Response will be the string 'delete successful'
+  let book = await dbConnection();
+  let bookItem = { _id: new ObjectId(req.params.id) };
+  try {
+    let result = await book.deleteOne(bookItem);
+    if (result.deletedCount) {
+      return res.send('delete successful');
+    } else {
+      return res.send('no book exists');
+    }
+  } catch(err) {
+    return console.error(err);
+  }
+}
+
+exports.book_comment = async function (req, res) {
+  // POST comments to book with _id
+  // Response will be a book object
+  // Format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
+  let book = await dbConnection();
+  let comment = req.body.comment;
+  if (!comment) {
+    return res.send('missing required field comment');
+  }
+  let update = {
+    $push: {
+      comments: comment
+    }
+  };
+  let bookItem = { _id: new ObjectId(req.params.id) };
+  try {
+    let result = await book.updateOne(bookItem, update);
+    if (result.matchedCount) {
+      result = await book.findOne(bookItem);
+      return res.json(result);
+    } else {
+      return res.send('no book exists');
+    }
+  } catch(err) {
+    return console.log(err);
+  }
+}
