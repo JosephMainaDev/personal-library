@@ -1,11 +1,126 @@
-const { ObjectId } = require('mongodb');
-const { getDb } = require('../db/conn');
+
+const Book = require('../models/models.js');
 
 exports.books_get = async function(req, res) {
   // GET all books in library collection
   // Response will be array of book objects
   // Format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
-  
+  let query = [{
+    $project: {
+      title: 1,
+      commentcount: { $size: '$comments' }
+    }
+  }];
+
+  try {
+    let result = await Book.aggregate(query).exec();
+    res.json(result);
+  } catch (err) {
+    return console.error(err);
+  }
+}
+
+exports.book_post = async function(req, res) {
+  // CREATE one book record
+  // Response will be the inserted book object including atleast _id and title
+  // Format: {"_id": bookid, "title": book_title, "comments": []}
+  let title = req.body.title;
+  if (!title) {
+    return res.send('missing required field title');
+  }
+  let book = new Book({ title: title });
+  try {
+    let result = await book.save();
+    return res.json(result);
+  } catch (err) {
+    return console.error(err);
+  }
+}
+
+exports.books_delete = async function(req, res) {
+  // DELETE all books in database
+  // if successful response will be 'complete delete successful'
+  try {
+    let result = await Book.deleteMany({});
+    if (result.deletedCount) {
+      return res.send('complete delete successful');
+    } else {
+      return res.send('no book exists');
+    }
+  } catch (err) {
+    return console.error(err);
+  }
+}
+
+exports.book_get = async function(req, res) {
+  // GET a single book that matches { _id: id }
+  // Response will be a book object
+  // Format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
+  try {
+    let result = await Book.findById(req.params.id);
+    if (result) {
+      return res.json(result);
+    } else {
+      return res.send('no book exists');
+    }
+  } catch (err) {
+    return console.error(err);
+  }
+}
+
+exports.book_delete = async function(req, res) {
+  // DELETE a book record with _id from the collection
+  // Response will be the string 'delete successful'
+  try {
+    let result = await Book.findByIdAndDelete(req.params.id);
+    if (result) {
+      return res.send('delete successful');
+    } else {
+      return res.send('no book exists');
+    }
+  } catch (err) {
+    return console.error(err);
+  }
+}
+
+exports.book_comment = async function(req, res) {
+  // POST comments to book with _id
+  // Response will be a book object
+  // Format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
+  let comment = req.body.comment;
+  if (!comment) {
+    return res.send('missing required field comment');
+  }
+  let update = {
+    $push: {
+      comments: comment
+    }
+  };
+  try {
+    let result = await Book.updateOne({ _id: req.params.id }, update);
+    if (result.matchedCount) {
+      result = await Book.findById(req.params.id);
+      return res.json(result);
+    } else {
+      return res.send('no book exists');
+    }
+  } catch (err) {
+    return console.log(err);
+  }
+}
+
+
+
+
+/*
+const { ObjectId } = require('mongodb');
+const { getDb } = require('../db/conn');
+const Book = require('../models/models.js');
+
+exports.books_get = async function(req, res) {
+  // GET all books in library collection
+  // Response will be array of book objects
+  // Format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
   let books = await getDb();
   let query = [
       {
@@ -28,7 +143,6 @@ exports.book_post = async function(req, res) {
   // Response will be the inserted book object including atleast _id and title
   // Format: {"_id": bookid, "title": book_title, "comments": []}
   let title = req.body.title;
-  // missing title
   if (!title) {
     return res.send('missing required field title');
   }
@@ -125,3 +239,4 @@ exports.book_comment = async function (req, res) {
     return console.log(err);
   }
 }
+*/
