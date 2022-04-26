@@ -9,6 +9,7 @@ require('dotenv').config();
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
 const runner            = require('./test-runner');
+const { dbConnection }  = require('./db/conn');
 
 const app = express();
 
@@ -24,6 +25,9 @@ app.route('/')
   .get(function (req, res) {
     res.sendFile(process.cwd() + '/views/index.html');
   });
+
+// DB connection
+dbConnection().then(console.log('DB connected'));
 
 //For FCC testing purposes
 fccTestingRoutes(app);

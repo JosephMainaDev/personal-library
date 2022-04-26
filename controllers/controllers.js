@@ -1,11 +1,12 @@
 const { ObjectId } = require('mongodb');
-const { dbConnection } = require('../db/conn');
+const { getDb } = require('../db/conn');
 
 exports.books_get = async function(req, res) {
   // GET all books in library collection
   // Response will be array of book objects
   // Format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
-  let books = await dbConnection();
+  
+  let books = await getDb();
   let query = [
       {
         $project: {
@@ -35,7 +36,7 @@ exports.book_post = async function(req, res) {
     title: title,
     comments: [],
   }
-  let book = await dbConnection();
+  let book = await getDb();
   try {
     let result = await book.insertOne(bookItem);
     if (result.insertedId) {
@@ -49,7 +50,7 @@ exports.book_post = async function(req, res) {
 exports.books_delete = async function (req, res) {
   // DELETE all books in database
   // if successful response will be 'complete delete successful'
-  let books = await dbConnection();
+  let books = await getDb();
   try {
     let result = await books.deleteMany({});
     if (result.deletedCount) {
@@ -66,7 +67,7 @@ exports.book_get = async function(req, res) {
   // GET a single book that matches { _id: id }
   // Response will be a book object
   // Format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
-  let book = await dbConnection();
+  let book = await getDb();
   let bookItem = { _id: new ObjectId(req.params.id) };
   try {
     let result = await book.findOne(bookItem);
@@ -83,7 +84,7 @@ exports.book_get = async function(req, res) {
 exports.book_delete = async function(req, res) {
   // DELETE a book record with _id from the collection
   // Response will be the string 'delete successful'
-  let book = await dbConnection();
+  let book = await getDb();
   let bookItem = { _id: new ObjectId(req.params.id) };
   try {
     let result = await book.deleteOne(bookItem);
@@ -101,7 +102,7 @@ exports.book_comment = async function (req, res) {
   // POST comments to book with _id
   // Response will be a book object
   // Format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
-  let book = await dbConnection();
+  let book = await getDb();
   let comment = req.body.comment;
   if (!comment) {
     return res.send('missing required field comment');

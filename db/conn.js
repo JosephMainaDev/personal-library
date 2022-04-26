@@ -9,12 +9,19 @@ const client = new MongoClient(db_uri, {
   useUnifiedTopology: true,
 });
 
+client.connect();
+
+let _db = null;
+
 exports.dbConnection = async function() {
   try {
-  	await client.connect();
-    let db = await client.db('library')
-  	return await db.collection('books'); // client.db('library');
+    _db = await client.db('library');
+    return;
   } catch (err) {
   	return console.error(err);
   }
+}
+
+exports.getDb = async function() {
+  return await _db.collection('books');
 }

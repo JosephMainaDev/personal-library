@@ -8,10 +8,6 @@
 
 'use strict';
 
-const { ObjectId } = require('mongodb');
-// MongoDB driver connection
-const { dbConnection } = require('../db/conn');
-
 const {
   books_get,
   book_post,
